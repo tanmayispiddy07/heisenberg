@@ -103,15 +103,6 @@
         .summary-text {
             white-space: pre-wrap;
         }
-        #visualization {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-top: 20px;
-            display: none;
-        }
-        #visualization:target {
-            display: block;
-        }
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
@@ -125,17 +116,17 @@
             <h1>Vehicle Routing Problem Solver</h1>
             <h2>Input Parameters</h2>
             <div class="form-group">
-                <label for="num-runs">Number of Solver Iterations:</label>
+                <label for="num-runs">Number of Runs:</label>
                 <input type="number" id="num-runs" value="3" min="1">
             </div>
             <div class="form-group">
-                <label for="clustering-method">Clustering Algorithm:</label>
+                <label for="clustering-method">Clustering Method:</label>
                 <select id="clustering-method">
                     <option value="capacity_aware" selected>Capacity Aware</option>
                     <option value="kmeans">K-Means</option>
                 </select>
             </div>
-            <h2>Node Details (Depot & Customer Locations)</h2>
+            <h2>Nodes</h2>
             <div id="nodes-container">
                 <div class="node-row">
                     <input type="number" class="node-id" value="0" placeholder="Node ID" disabled>
@@ -162,7 +153,7 @@
                 </div>
             </div>
             <button onclick="addNode()">Add Node</button>
-            <h2>Vehicle Specifications</h2>
+            <h2>Vehicles</h2>
             <div id="vehicles-container">
                 <div class="vehicle-row">
                     <input type="number" class="vehicle-id" value="0" placeholder="Vehicle ID">
@@ -199,7 +190,6 @@
             <h2>Map</h2>
             <div id="map"></div>
             <div id="solution"></div>
-            <div id="visualization"></div>
         </div>
     </div>
     <script>
@@ -327,7 +317,6 @@
         async function solveVRP() {
             document.getElementById('error').textContent = '';
             document.getElementById('solution').innerHTML = '';
-            document.getElementById('visualization').innerHTML = '';
             
             // Update nodes and vehicles from inputs
             nodes = Array.from(document.getElementsByClassName('node-row')).map(row => ({
@@ -347,7 +336,7 @@
             }));
 
             try {
-                const response = await fetch('http://localhost:8000/solve_vrp/', {
+                const response = await fetch('http://127.0.0.1:8000/solve_vrp/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -360,7 +349,7 @@
                 const data = await response.json();
                 if (response.ok) {
                     updateMap(data);
-                    let solutionHtml = `
+                    let html = `
                         <h2>VRP Solution Summary</h2>
                         <p><strong>Status:</strong> ${data.status}</p>
                         <p><strong>Total Cost:</strong> $${data.vrp_solution.cost.toFixed(2)}</p>
@@ -385,7 +374,7 @@
                     for (const [vehicleId, route] of Object.entries(data.vrp_solution.routes)) {
                         const metrics = calculateVehicleMetrics(vehicleId, route);
                         const vehicle = vehicles.find(v => v.id === parseInt(vehicleId));
-                        solutionHtml += `
+                        html += `
                             <tr>
                                 <td>${vehicleId}</td>
                                 <td>${vehicle.type}</td>
@@ -397,25 +386,17 @@
                             </tr>
                         `;
                     }
-                    solutionHtml += `
+                    html += `
                             </tbody>
                         </table>
                         <h2>Shift Analysis</h2>
                         <p class="summary-text">${data.vrp_solution.schedule}</p>
                         <h2>Detailed Summary</h2>
                         <p class="summary-text">${data.vrp_solution.summary}</p>
+                        <h2>Visualization</h2>
+                        <p><a href="http://localhost:8080/static/vrp_solution.html" target="_blank">View Detailed Map</a></p>
                     `;
-                    document.getElementById('solution').innerHTML = solutionHtml;
-
-                    // Fetch and embed the visualization HTML file
-                    const vizResponse = await fetch(data.vrp_solution.visualization_file);
-                    if (vizResponse.ok) {
-                        const vizHtml = await vizResponse.text();
-                        document.getElementById('visualization').innerHTML = `<h2>Visualization</h2>${vizHtml}`;
-                        document.getElementById('visualization').style.display = 'block';
-                    } else {
-                        document.getElementById('visualization').innerHTML = '<h2>Visualization</h2><p>Failed to load visualization.</p>';
-                    }
+                    document.getElementById('solution').innerHTML = html;
                 } else {
                     document.getElementById('error').textContent = data.detail || 'Failed to solve VRP';
                 }
