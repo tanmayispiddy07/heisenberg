@@ -1,0 +1,7 @@
+fastapi 
+uvicorn
+qiskit==1.2.0
+qiskit-ibm-runtime==0.29.0
+qiskit-aer==0.15.0
+qiskit-algorithms==0.3.0
+matplotlib==3.9.2

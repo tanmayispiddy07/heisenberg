@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VRP Solver Frontend</title>
+    <!-- Leaflet CSS CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet JS CDN -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .input-section, .output-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .node-row, .vehicle-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .node-row input, .vehicle-row input, .vehicle-row select {
+            flex: 1;
+            min-width: 100px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        button.remove {
+            background-color: #dc3545;
+        }
+        button.remove:hover {
+            background-color: #c82333;
+        }
+        #map {
+            height: 500px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .error {
+            color: #dc3545;
+            margin-top: 10px;
+        }
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .summary-table th, .summary-table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        .summary-table th {
+            background-color: #e9ecef;
+        }
+        .summary-text {
+            white-space: pre-wrap;
+        }
+        #visualization {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        #visualization:target {
+            display: block;
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="input-section">
+            <h1>Vehicle Routing Problem Solver</h1>
+            <h2>Input Parameters</h2>
+            <div class="form-group">
+                <label for="num-runs">Number of Solver Iterations:</label>
+                <input type="number" id="num-runs" value="3" min="1">
+            </div>
+            <div class="form-group">
+                <label for="clustering-method">Clustering Algorithm:</label>
+                <select id="clustering-method">
+                    <option value="capacity_aware" selected>Capacity Aware</option>
+                    <option value="kmeans">K-Means</option>
+                </select>
+            </div>
+            <h2>Node Details (Depot & Customer Locations)</h2>
+            <div id="nodes-container">
+                <div class="node-row">
+                    <input type="number" class="node-id" value="0" placeholder="Node ID" disabled>
+                    <input type="number" class="node-x" value="-73.9857" placeholder="Longitude" step="any">
+                    <input type="number" class="node-y" value="40.7484" placeholder="Latitude" step="any">
+                    <input type="number" class="node-demand" value="0" placeholder="Demand" disabled>
+                    <input type="number" class="node-service-time" value="0" placeholder="Service Time" disabled>
+                </div>
+                <div class="node-row">
+                    <input type="number" class="node-id" value="1" placeholder="Node ID">
+                    <input type="number" class="node-x" value="-73.9680" placeholder="Longitude" step="any">
+                    <input type="number" class="node-y" value="40.7850" placeholder="Latitude" step="any">
+                    <input type="number" class="node-demand" value="10" placeholder="Demand" step="any">
+                    <input type="number" class="node-service-time" value="0.5" placeholder="Service Time" step="any">
+                    <button class="remove" onclick="removeNode(this)">Remove</button>
+                </div>
+                <div class="node-row">
+                    <input type="number" class="node-id" value="2" placeholder="Node ID">
+                    <input type="number" class="node-x" value="-73.9934" placeholder="Latitude" step="any">
+                    <input type="number" class="node-y" value="40.7589" placeholder="Longitude" step="any">
+                    <input type="number" class="node-demand" value="10" placeholder="Demand" step="any">
+                    <input type="number" class="node-service-time" value="0.5" placeholder="Service Time" step="any">
+                    <button class="remove" onclick="removeNode(this)">Remove</button>
+                </div>
+            </div>
+            <button onclick="addNode()">Add Node</button>
+            <h2>Vehicle Specifications</h2>
+            <div id="vehicles-container">
+                <div class="vehicle-row">
+                    <input type="number" class="vehicle-id" value="0" placeholder="Vehicle ID">
+                    <input type="number" class="vehicle-capacity" value="30" placeholder="Capacity" step="any">
+                    <input type="number" class="vehicle-max-time" value="8.0" placeholder="Max Time" step="any">
+                    <select class="vehicle-type">
+                        <option value="truck" selected>Truck</option>
+                        <option value="car">Car</option>
+                        <option value="bike">Bike</option>
+                    </select>
+                    <input type="number" class="vehicle-speed" value="1.0" placeholder="Speed" step="any">
+                    <input type="number" class="vehicle-fuel-consumption" value="1.0" placeholder="Fuel Consumption" step="any">
+                    <button class="remove" onclick="removeVehicle(this)">Remove</button>
+                </div>
+                <div class="vehicle-row">
+                    <input type="number" class="vehicle-id" value="1" placeholder="Vehicle ID">
+                    <input type="number" class="vehicle-capacity" value="20" placeholder="Capacity" step="any">
+                    <input type="number" class="vehicle-max-time" value="8.0" placeholder="Max Time" step="any">
+                    <select class="vehicle-type">
+                        <option value="truck">Truck</option>
+                        <option value="car" selected>Car</option>
+                        <option value="bike">Bike</option>
+                    </select>
+                    <input type="number" class="vehicle-speed" value="1.0" placeholder="Speed" step="any">
+                    <input type="number" class="vehicle-fuel-consumption" value="0.8" placeholder="Fuel Consumption" step="any">
+                    <button class="remove" onclick="removeVehicle(this)">Remove</button>
+                </div>
+            </div>
+            <button onclick="addVehicle()">Add Vehicle</button>
+            <button onclick="solveVRP()" style="width: 100%; margin-top: 20px;">Solve VRP</button>
+            <div id="error" class="error"></div>
+        </div>
+        <div class="output-section">
+            <h2>Map</h2>
+            <div id="map"></div>
+            <div id="solution"></div>
+            <div id="visualization"></div>
+        </div>
+    </div>
+    <script>
+        let map = null;
+        let nodes = [
+            { id: 0, x: -73.9857, y: 40.7484, demand: 0, service_time: 0 },
+            { id: 1, x: -73.9680, y: 40.7850, demand: 10, service_time: 0.5 },
+            { id: 2, x: -73.9934, y: 40.7589, demand: 10, service_time: 0.5 }
+        ];
+        let vehicles = [
+            { id: 0, capacity: 30, max_time: 8.0, type: 'truck', speed: 1.0, fuel_consumption: 1.0 },
+            { id: 1, capacity: 20, max_time: 8.0, type: 'car', speed: 1.0, fuel_consumption: 0.8 }
+        ];
+
+        // Initialize map
+        window.onload = () => {
+            map = L.map('map').setView([40.7484, -73.9857], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+            updateMap();
+        };
+
+        function addNode() {
+            const container = document.getElementById('nodes-container');
+            const index = nodes.length;
+            nodes.push({ id: index, x: -73.9857, y: 40.7484, demand: 10, service_time: 0.5 });
+            const row = document.createElement('div');
+            row.className = 'node-row';
+            row.innerHTML = `
+                <input type="number" class="node-id" value="${index}" placeholder="Node ID">
+                <input type="number" class="node-x" value="-73.9857" placeholder="Longitude" step="any">
+                <input type="number" class="node-y" value="40.7484" placeholder="Latitude" step="any">
+                <input type="number" class="node-demand" value="10" placeholder="Demand" step="any">
+                <input type="number" class="node-service-time" value="0.5" placeholder="Service Time" step="any">
+                <button class="remove" onclick="removeNode(this)">Remove</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function removeNode(button) {
+            const row = button.parentElement;
+            const index = Array.from(document.getElementsByClassName('node-row')).indexOf(row);
+            if (index > 0) {
+                nodes.splice(index, 1);
+                row.remove();
+            }
+        }
+
+        function addVehicle() {
+            const container = document.getElementById('vehicles-container');
+            const index = vehicles.length;
+            vehicles.push({ id: index, capacity: 20, max_time: 8.0, type: 'car', speed: 1.0, fuel_consumption: 1.0 });
+            const row = document.createElement('div');
+            row.className = 'vehicle-row';
+            row.innerHTML = `
+                <input type="number" class="vehicle-id" value="${index}" placeholder="Vehicle ID">
+                <input type="number" class="vehicle-capacity" value="20" placeholder="Capacity" step="any">
+                <input type="number" class="vehicle-max-time" value="8.0" placeholder="Max Time" step="any">
+                <select class="vehicle-type">
+                    <option value="truck">Truck</option>
+                    <option value="car" selected>Car</option>
+                    <option value="bike">Bike</option>
+                </select>
+                <input type="number" class="vehicle-speed" value="1.0" placeholder="Speed" step="any">
+                <input type="number" class="vehicle-fuel-consumption" value="1.0" placeholder="Fuel Consumption" step="any">
+                <button class="remove" onclick="removeVehicle(this)">Remove</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function removeVehicle(button) {
+            const row = button.parentElement;
+            const index = Array.from(document.getElementsByClassName('vehicle-row')).indexOf(row);
+            vehicles.splice(index, 1);
+            row.remove();
+        }
+
+        function updateMap(solution = null) {
+            map.eachLayer(layer => {
+                if (layer instanceof L.Marker || layer instanceof L.Polyline) map.removeLayer(layer);
+            });
+            nodes.forEach(node => {
+                L.marker([node.y, node.x], {
+                    icon: L.divIcon({
+                        className: 'custom-icon',
+                        html: `<div style="background-color: ${node.id === 0 ? 'red' : 'blue'}; width: 20px; height: 20px; border-radius: 50%; text-align: center; color: white;">${node.id}</div>`
+                    })
+                }).addTo(map).bindPopup(`Node ${node.id}<br>Demand: ${node.demand}<br>Service Time: ${node.service_time}`);
+            });
+            if (solution?.vrp_solution?.routes) {
+                const colors = ['#FF0000', '#00FF00', '#0000FF', '#FF00FF', '#FFFF00'];
+                Object.entries(solution.vrp_solution.routes).forEach(([vehicleId, route], i) => {
+                    const path = route.map(nodeId => {
+                        const node = nodes.find(n => n.id === parseInt(nodeId));
+                        return [node.y, node.x];
+                    });
+                    L.polyline(path, { color: colors[i % colors.length], weight: 4 })
+                        .addTo(map)
+                        .bindPopup(`Vehicle ${vehicleId} Route`);
+                });
+            }
+            if (nodes.length > 0) {
+                map.fitBounds(nodes.map(n => [n.y, n.x]));
+            }
+        }
+
+        function calculateVehicleMetrics(vehicleId, route) {
+            const vehicle = vehicles.find(v => v.id === parseInt(vehicleId));
+            let distance = 0;
+            let time = 0;
+            for (let i = 0; i < route.length - 1; i++) {
+                const fromNode = nodes.find(n => n.id === parseInt(route[i]));
+                const toNode = nodes.find(n => n.id === parseInt(route[i + 1]));
+                const dist = Math.sqrt(
+                    Math.pow(toNode.x - fromNode.x, 2) + Math.pow(toNode.y - fromNode.y, 2)
+                ) / vehicle.speed;
+                distance += dist;
+                time += dist + (toNode.id !== 0 ? toNode.service_time : 0);
+            }
+            const fuelCost = distance * vehicle.fuel_consumption;
+            return { distance: distance.toFixed(2), time: time.toFixed(2), fuelCost: fuelCost.toFixed(2) };
+        }
+
+        async function solveVRP() {
+            document.getElementById('error').textContent = '';
+            document.getElementById('solution').innerHTML = '';
+            document.getElementById('visualization').innerHTML = '';
+            
+            // Update nodes and vehicles from inputs
+            nodes = Array.from(document.getElementsByClassName('node-row')).map(row => ({
+                id: parseInt(row.querySelector('.node-id').value),
+                x: parseFloat(row.querySelector('.node-x').value) || -73.9857,
+                y: parseFloat(row.querySelector('.node-y').value) || 40.7484,
+                demand: parseFloat(row.querySelector('.node-demand').value) || 0,
+                service_time: parseFloat(row.querySelector('.node-service-time').value) || 0
+            }));
+            vehicles = Array.from(document.getElementsByClassName('vehicle-row')).map(row => ({
+                id: parseInt(row.querySelector('.vehicle-id').value),
+                capacity: parseFloat(row.querySelector('.vehicle-capacity').value) || 20,
+                max_time: parseFloat(row.querySelector('.vehicle-max-time').value) || 8.0,
+                type: row.querySelector('.vehicle-type').value,
+                speed: parseFloat(row.querySelector('.vehicle-speed').value) || 1.0,
+                fuel_consumption: parseFloat(row.querySelector('.vehicle-fuel-consumption').value) || 1.0
+            }));
+
+            try {
+                const response = await fetch('http://localhost:8000/solve_vrp/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nodes,
+                        vehicles,
+                        num_runs: parseInt(document.getElementById('num-runs').value) || 3,
+                        clustering_method: document.getElementById('clustering-method').value
+                    })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    updateMap(data);
+                    let solutionHtml = `
+                        <h2>VRP Solution Summary</h2>
+                        <p><strong>Status:</strong> ${data.status}</p>
+                        <p><strong>Total Cost:</strong> $${data.vrp_solution.cost.toFixed(2)}</p>
+                        <p><strong>Total Time:</strong> ${data.vrp_solution.time.toFixed(2)} hours</p>
+                        <p><strong>Estimated Qubits:</strong> ${data.vrp_solution.estimated_qubits}</p>
+                        <p><strong>Method:</strong> ${data.vrp_solution.method}</p>
+                        <h2>Vehicle Performance & Cost Analysis</h2>
+                        <table class="summary-table">
+                            <thead>
+                                <tr>
+                                    <th>Vehicle ID</th>
+                                    <th>Type</th>
+                                    <th>Route</th>
+                                    <th>Distance (units)</th>
+                                    <th>Time (hours)</th>
+                                    <th>Fuel Cost ($)</th>
+                                    <th>Cluster</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    for (const [vehicleId, route] of Object.entries(data.vrp_solution.routes)) {
+                        const metrics = calculateVehicleMetrics(vehicleId, route);
+                        const vehicle = vehicles.find(v => v.id === parseInt(vehicleId));
+                        solutionHtml += `
+                            <tr>
+                                <td>${vehicleId}</td>
+                                <td>${vehicle.type}</td>
+                                <td>${route.join(' -> ')}</td>
+                                <td>${metrics.distance}</td>
+                                <td>${metrics.time}</td>
+                                <td>${metrics.fuelCost}</td>
+                                <td>${data.vrp_solution.clusters[vehicleId]?.join(', ') || 'None'}</td>
+                            </tr>
+                        `;
+                    }
+                    solutionHtml += `
+                            </tbody>
+                        </table>
+                        <h2>Shift Analysis</h2>
+                        <p class="summary-text">${data.vrp_solution.schedule}</p>
+                        <h2>Detailed Summary</h2>
+                        <p class="summary-text">${data.vrp_solution.summary}</p>
+                    `;
+                    document.getElementById('solution').innerHTML = solutionHtml;
+
+                    // Fetch and embed the visualization HTML file
+                    const vizResponse = await fetch(data.vrp_solution.visualization_file);
+                    if (vizResponse.ok) {
+                        const vizHtml = await vizResponse.text();
+                        document.getElementById('visualization').innerHTML = `<h2>Visualization</h2>${vizHtml}`;
+                        document.getElementById('visualization').style.display = 'block';
+                    } else {
+                        document.getElementById('visualization').innerHTML = '<h2>Visualization</h2><p>Failed to load visualization.</p>';
+                    }
+                } else {
+                    document.getElementById('error').textContent = data.detail || 'Failed to solve VRP';
+                }
+            } catch (err) {
+                document.getElementById('error').textContent = 'Error connecting to backend: ' + err.message;
+            }
+        }
+    </script>
+</body>
+</html>
