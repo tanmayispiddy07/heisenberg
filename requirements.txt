@@ -5,3 +5,4 @@ qiskit-ibm-runtime==0.29.0
 qiskit-aer
 qiskit-algorithms==0.3.0
 matplotlib==3.9.2
+folium

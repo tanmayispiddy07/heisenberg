@@ -336,7 +336,7 @@
             }));
 
             try {
-                const response = await fetch('http://127.0.0.1:8000/solve_vrp/', {
+                const response = await fetch('http://localhost:8000/solve_vrp/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -394,7 +394,7 @@
                         <h2>Detailed Summary</h2>
                         <p class="summary-text">${data.vrp_solution.summary}</p>
                         <h2>Visualization</h2>
-                        <p><a href="http://localhost:8080/static/vrp_solution.html" target="_blank">View Detailed Map</a></p>
+                        <p><a href="http://127.0.0.1:8000/static/vrp_solution.html" target="_blank">View Detailed Map</a></p>
                     `;
                     document.getElementById('solution').innerHTML = html;
                 } else {
