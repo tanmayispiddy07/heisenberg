@@ -1,4 +1,4 @@
-Quantum Path Planning for Delivery Vehicles
+#Quantum Path Planning for Delivery Vehicles
 
 Project Overview
 This project harnesses quantum computing to optimize path planning for delivery vehicles, aiming to enhance route efficiency by minimizing travel time, fuel consumption, and operational costs. It addresses complex constraints such as traffic patterns, delivery windows, and vehicle capacity, leveraging the power of quantum algorithms to outperform classical approaches.
@@ -36,3 +36,4 @@ Established a pipeline for testing on actual quantum annealers.
 Links
 
 Live Website: hisenberg.netlify.app
+
