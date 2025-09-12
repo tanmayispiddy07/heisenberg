@@ -37,14 +37,58 @@ interface ParsedOutput {
 function App() {
   const [currentStep, setCurrentStep] = useState(0);
   const [nodes, setNodes] = useState<Node[]>([
-    { id: 0, latitude: 40.7484, longitude: -73.9857, demand: 0, serviceTime: 0, available: '8-12', timeWindow: [8.0, 12.0] },
-    { id: 1, latitude: 40.7850, longitude: -73.9680, demand: 10, serviceTime: 0.5, available: '12-16', timeWindow: [12.0, 16.0] },
-    { id: 2, latitude: 40.7589, longitude: -73.9934, demand: 20, serviceTime: 0.5, available: '8-12', timeWindow: [8.0, 12.0] }
-  ]);
+  // Shift 1
+  { id: 0, latitude: 16.5193, longitude: 80.6185, demand: 0, serviceTime: 0.5, available: '8-12', timeWindow: [8.0, 12.0] },   // Vijayawada Railway Station
+  { id: 1, latitude: 16.5250, longitude: 80.6095, demand: 10, serviceTime: 0.5, available: '8-12', timeWindow: [8.0, 12.0] },  // Kanaka Durga Temple
+  { id: 2, latitude: 16.5130, longitude: 80.6287, demand: 10, serviceTime: 0.5, available: '8-12', timeWindow: [8.0, 12.0] },  // MG Road / Governorpet
+  { id: 3, latitude: 16.4985, longitude: 80.6569, demand: 10, serviceTime: 0.5, available: '8-12', timeWindow: [8.0, 12.0] },  // Benz Circle
+  { id: 4, latitude: 16.4926, longitude: 80.6715, demand: 10, serviceTime: 0.5, available: '8-12', timeWindow: [8.0, 12.0] },  // Autonagar
+  { id: 5, latitude: 16.4824, longitude: 80.6957, demand: 10, serviceTime: 0.5, available: '8-12', timeWindow: [8.0, 12.0] },  // Poranki
+  { id: 6, latitude: 16.5158, longitude: 80.6168, demand: 10, serviceTime: 0.5, available: '8-12', timeWindow: [8.0, 12.0] },  // Machavaram
+  { id: 7, latitude: 16.5283, longitude: 80.6469, demand: 10, serviceTime: 0.5, available: '8-12', timeWindow: [8.0, 12.0] },  // Siddhartha Medical College
+  { id: 8, latitude: 16.5325, longitude: 80.6360, demand: 10, serviceTime: 0.5, available: '8-12', timeWindow: [8.0, 12.0] },  // Gunadala
+  { id: 9, latitude: 16.5105, longitude: 80.6380, demand: 10, serviceTime: 0.5, available: '8-12', timeWindow: [8.0, 12.0] },  // Labbipet
+  { id: 10, latitude: 16.5134, longitude: 80.6255, demand: 10, serviceTime: 0.5, available: '8-12', timeWindow: [8.0, 12.0] }, // Raghavaiah Park
+  { id: 11, latitude: 16.5028, longitude: 80.6305, demand: 10, serviceTime: 0.5, available: '8-12', timeWindow: [8.0, 12.0] }, // Krishnalanka
+  { id: 12, latitude: 16.5169, longitude: 80.6671, demand: 10, serviceTime: 0.5, available: '8-12', timeWindow: [8.0, 12.0] }, // Ramavarappadu
+
+  // Shift 2
+  { id: 0, latitude: 16.5193, longitude: 80.6185, demand: 0, serviceTime: 0.5, available: '12-16', timeWindow: [12.0, 16.0] },
+  { id: 1, latitude: 16.5250, longitude: 80.6095, demand: 10, serviceTime: 0.5, available: '12-16', timeWindow: [12.0, 16.0] },
+  { id: 2, latitude: 16.5130, longitude: 80.6287, demand: 10, serviceTime: 0.5, available: '12-16', timeWindow: [12.0, 16.0] },
+  { id: 3, latitude: 16.4985, longitude: 80.6569, demand: 10, serviceTime: 0.5, available: '12-16', timeWindow: [12.0, 16.0] },
+  { id: 4, latitude: 16.4926, longitude: 80.6715, demand: 10, serviceTime: 0.5, available: '12-16', timeWindow: [12.0, 16.0] },
+  { id: 5, latitude: 16.4824, longitude: 80.6957, demand: 10, serviceTime: 0.5, available: '12-16', timeWindow: [12.0, 16.0] },
+  { id: 6, latitude: 16.5158, longitude: 80.6168, demand: 10, serviceTime: 0.5, available: '12-16', timeWindow: [12.0, 16.0] },
+  { id: 7, latitude: 16.5283, longitude: 80.6469, demand: 10, serviceTime: 0.5, available: '12-16', timeWindow: [12.0, 16.0] },
+  { id: 8, latitude: 16.5325, longitude: 80.6360, demand: 10, serviceTime: 0.5, available: '12-16', timeWindow: [12.0, 16.0] },
+  { id: 9, latitude: 16.5105, longitude: 80.6380, demand: 10, serviceTime: 0.5, available: '12-16', timeWindow: [12.0, 16.0] },
+  { id: 10, latitude: 16.5134, longitude: 80.6255, demand: 10, serviceTime: 0.5, available: '12-16', timeWindow: [12.0, 16.0] },
+  { id: 11, latitude: 16.5028, longitude: 80.6305, demand: 10, serviceTime: 0.5, available: '12-16', timeWindow: [12.0, 16.0] },
+  { id: 12, latitude: 16.5169, longitude: 80.6671, demand: 10, serviceTime: 0.5, available: '12-16', timeWindow: [12.0, 16.0] },
+
+  // Shift 3
+  { id: 0, latitude: 16.5193, longitude: 80.6185, demand: 0, serviceTime: 0.5, available: '16-20', timeWindow: [16.0, 20.0] },
+  { id: 1, latitude: 16.5250, longitude: 80.6095, demand: 10, serviceTime: 0.5, available: '16-20', timeWindow: [16.0, 20.0] },
+  { id: 2, latitude: 16.5130, longitude: 80.6287, demand: 10, serviceTime: 0.5, available: '16-20', timeWindow: [16.0, 20.0] },
+  { id: 3, latitude: 16.4985, longitude: 80.6569, demand: 10, serviceTime: 0.5, available: '16-20', timeWindow: [16.0, 20.0] },
+  { id: 4, latitude: 16.4926, longitude: 80.6715, demand: 10, serviceTime: 0.5, available: '16-20', timeWindow: [16.0, 20.0] },
+  { id: 5, latitude: 16.4824, longitude: 80.6957, demand: 10, serviceTime: 0.5, available: '16-20', timeWindow: [16.0, 20.0] },
+  { id: 6, latitude: 16.5158, longitude: 80.6168, demand: 10, serviceTime: 0.5, available: '16-20', timeWindow: [16.0, 20.0] },
+  { id: 7, latitude: 16.5283, longitude: 80.6469, demand: 10, serviceTime: 0.5, available: '16-20', timeWindow: [16.0, 20.0] },
+  { id: 8, latitude: 16.5325, longitude: 80.6360, demand: 10, serviceTime: 0.5, available: '16-20', timeWindow: [16.0, 20.0] },
+  { id: 9, latitude: 16.5105, longitude: 80.6380, demand: 10, serviceTime: 0.5, available: '16-20', timeWindow: [16.0, 20.0] },
+  { id: 10, latitude: 16.5134, longitude: 80.6255, demand: 10, serviceTime: 0.5, available: '16-20', timeWindow: [16.0, 20.0] },
+  { id: 11, latitude: 16.5028, longitude: 80.6305, demand: 10, serviceTime: 0.5, available: '16-20', timeWindow: [16.0, 20.0] },
+  { id: 12, latitude: 16.5169, longitude: 80.6671, demand: 10, serviceTime: 0.5, available: '16-20', timeWindow: [16.0, 20.0] }
+]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([
-    { id: 1, capacity: 100, type: 'Car', fuelConsumption: 1.0, speed: 1.0, maxTime: 8.0 },
-    { id: 2, capacity: 50, type: 'Car', fuelConsumption: 1.0, speed: 1.0, maxTime: 8.0 }
-  ]);
+  { id: 0, capacity: 60, type: 'truck', fuelConsumption: 2.5, speed: 0.7, maxTime: 8.0 },
+  { id: 1, capacity: 30, type: 'car', fuelConsumption: 1.0, speed: 1.0, maxTime: 8.0 },
+  { id: 2, capacity: 30, type: 'car', fuelConsumption: 1.0, speed: 1.0, maxTime: 8.0 },
+  { id: 3, capacity: 10, type: 'bike', fuelConsumption: 0.2, speed: 0.5, maxTime: 4.0 },
+  { id: 4, capacity: 10, type: 'bike', fuelConsumption: 0.2, speed: 0.5, maxTime: 4.0 }
+]);
   const [expandedSections, setExpandedSections] = useState({
     nodes: true,
     vehicles: false,
@@ -57,7 +101,8 @@ function App() {
   const [parsedOutput, setParsedOutput] = useState<ParsedOutput | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  const [choice, setChoice] = useState<'overtime' | 'move'>('move'); // New state for overtime/move choice
+  const [output, setOutput] = useState<string>('');
   const inputSectionRef = useRef<HTMLDivElement>(null);
 
   const scrollToInputs = () => {
@@ -188,7 +233,7 @@ function App() {
         max_time: vehicle.maxTime || 8.0
       }));
 
-      const payload = { nodes: apiNodes, vehicles: apiVehicles };
+      const payload = { nodes: apiNodes, vehicles: apiVehicles ,choice };
       console.log('Sending payload:', JSON.stringify(payload, null, 2));
 
       const response = await axios.post('http://127.0.0.1:8000/solve_vrp', payload, {
@@ -733,6 +778,18 @@ function App() {
                         <Plus className="w-4 h-4" />
                         Add Vehicle
                       </button>
+                      <div className="mb-6">
+        <label className="block text-lg font-semibold mb-2">Handle Exceeding Customers:</label>
+        <select
+          value={choice}
+          onChange={(e) => setChoice(e.target.value as 'overtime' | 'move')}
+          className="p-2 border rounded-md bg-white shadow-sm"
+        >
+          <option value="move">Move to Next Shift</option>
+          <option value="overtime">Allow Overtime</option>
+        </select>
+      </div>
+
                       <button
                         onClick={solveVRP}
                         disabled={loading}
@@ -806,7 +863,7 @@ function App() {
                       <div className="font-bold text-cyan-300 mb-2 text-lg">Optimized Routes</div>
                       {parsedOutput.mapFilename ? (
                         <iframe
-                        src="C:\Users\tanma\Desktop\trail\vrp_-_ibm_aer_simulator_(mps_with_traffic)_-_shift_1.html"
+                        src="vrp_-_ibm_aer_simulator_(mps_with_traffic)_-_shift_2 (2).html"
                         title="Routing Before Traffic"
                         className="w-full aspect-video rounded-xl border border-cyan-400/20 bg-white"
                       />

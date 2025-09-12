@@ -42,6 +42,7 @@ class Vehicle(BaseModel):
 class VRPSolveRequest(BaseModel):
     nodes: List[Node]
     vehicles: List[Vehicle]
+    choice: str
 
 # Solve VRP endpoint
 @app.post("/solve_vrp")
@@ -50,9 +51,11 @@ async def solve_vrp(request: VRPSolveRequest):
         # Convert Pydantic models to dict for api_solve
         nodes_data = [node.dict() for node in request.nodes]
         vehicles_data = [vehicle.dict() for vehicle in request.vehicles]
-        
-        # Call the solver
-        output = api_solve(nodes_data, vehicles_data)
+        choice = request.choice
+        if choice not in ["overtime", "move"]:
+            choice = "move"
+        # Call+ the solver
+        output = api_solve(nodes_data, vehicles_data,choice)
         
         return {"status": "success", "output": output}
     except Exception as e:
